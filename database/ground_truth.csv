@@ -1,0 +1,17 @@
+defect_id,type,table_name,column_name,expected_count,description
+D01,Orphan,order_details,product_id,12,References nonexistent product_id 9999
+D02,Orphan,orders,customer_id,8,References nonexistent customer_id ZZZZZ
+D03,Orphan,orders,employee_id,5,References nonexistent employee_id 99
+D04,Orphan,products,supplier_id,6,References nonexistent supplier_id 500
+D05,Orphan,orders,ship_via,4,References nonexistent shipper_id 7
+D06,Null,orders,customer_id,10,NULL customer_id values
+D07,Null,products,category_id,7,NULL category_id values
+D08,Null,order_details,quantity,9,NULL quantity values
+D09,Exact duplicate,customers,customer_id,5,Five duplicate customer records with IDs DUP1-DUP5
+D10,Fuzzy duplicate,customers,company_name,4,Four similar customer names with an Inc. suffix (IDs FZY1-FZY4)
+D11,Exact duplicate,orders,order_id,6,Six duplicated orders with IDs 831-836
+D12,Exact duplicate,order_details,"order_id,product_id",3,Three duplicated order-detail combinations (planted; the D01 update may add extra duplicate groups on product_id 9999 - verify with SQL)
+D13,Cycle,employees,reports_to,1,Circular management relationship: 4 -> 5 -> 6 -> 4
+D14,Missing FK,whole database,N/A,8,Eight undeclared foreign-key relationships: orders.customer_id -> customers.customer_id; orders.employee_id -> employees.employee_id; orders.ship_via -> shippers.shipper_id; order_details.order_id -> orders.order_id; order_details.product_id -> products.product_id; products.supplier_id -> suppliers.supplier_id; products.category_id -> categories.category_id; employees.reports_to -> employees.employee_id
+D15,Broken chain,orders,order_id,11,Orders without order-detail records (5 planted plus 6 copies from D11)
+D16,Broken chain,order_details,"order_id,product_id",68,Broken order_details -> orders -> customers/products traceability chain (ESTIMATED by replaying the seed script: 12 + 24 + 32; verify with the D16 SQL query)
