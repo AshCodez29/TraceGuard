@@ -1,0 +1,29 @@
+-- V1: access control (roles, users, data sources)
+
+CREATE TABLE roles (
+  role_id TINYINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(20) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+CREATE TABLE users (
+  user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  email VARCHAR(120) NOT NULL UNIQUE,
+  password_hash VARCHAR(100) NOT NULL,
+  role_id TINYINT NOT NULL,
+  enabled TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(role_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE data_sources (
+  source_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80) NOT NULL UNIQUE,
+  jdbc_url VARCHAR(255) NOT NULL,
+  db_username VARCHAR(80) NOT NULL,
+  password_encrypted VARCHAR(255) NOT NULL,
+  schema_name VARCHAR(80) NOT NULL,
+  created_by BIGINT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_ds_user FOREIGN KEY (created_by) REFERENCES users(user_id)
+) ENGINE=InnoDB;
