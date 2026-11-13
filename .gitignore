@@ -1,0 +1,13 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# IDE metadata
+.idea/
+
+# macOS metadata
+.DS_Store
+
+# Java and Maven build output
+**/target/
