@@ -4,7 +4,7 @@ import { ROLE_PERMISSIONS } from '../config/permissions.js';
 
 const AuthContext = createContext(null);
 const SESSION_KEY = 'traceguard.session';
-const DEMO_MODE = import.meta.env.VITE_DEMO_PREVIEW === 'true';
+const DEMO_MODE = import.meta.env.DEV || import.meta.env.VITE_DEMO_PREVIEW === 'true';
 const PREVIEW_REQUESTED = new URLSearchParams(window.location.search).get('dev') === '1';
 export const isDemoPreview = DEMO_MODE && PREVIEW_REQUESTED;
 
