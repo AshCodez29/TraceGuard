@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/traceguard_app?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${TG_DB_USER}
+    password: ${TG_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+traceguard:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiry-minutes: 480
+  datasource-encryption-key: ${DATASOURCE_ENCRYPTION_KEY}
+  admin-initial-password: ${ADMIN_INITIAL_PASSWORD}
+  llm:
+    api-key: ${LLM_API_KEY}
+  cors-origins: http://localhost:5173
+  allowed-target-hosts: localhost,127.0.0.1,mysql

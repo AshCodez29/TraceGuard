@@ -1,0 +1,13 @@
+:root { color-scheme: dark; --muted: var(--mute); --line: var(--edge); --surface: var(--glass); --text: var(--ink); --ok: var(--g); }
+html, body, #root { width: 100%; height: 100%; min-height: 100%; margin: 0; }
+body { overflow: hidden; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+a { color: inherit; text-decoration: none; }
+#app { min-height: 100%; }
+#login { min-height: 100%; }
+#login .login-wrap { margin: 0 auto; }
+#app .body { min-height: 0; }
+#app .mid, #app .rp { min-height: 0; }
+#app .ctr { min-height: 100%; }
