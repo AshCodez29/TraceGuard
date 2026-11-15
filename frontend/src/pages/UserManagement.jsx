@@ -8,17 +8,18 @@ export default function UserManagement() {
   const { hasPermission, isDemo } = useAuth();
   const { showToast } = useToast();
   const [users, setUsers] = useState(() => structuredClone(isDemo ? DEMO_USERS : []));
-  const [name, setName] = useState(''); const [email, setEmail] = useState(''); const [role, setRole] = useState('DEVELOPER');
+  const [name, setName] = useState(''); const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [role, setRole] = useState('DEVELOPER');
   useEffect(() => { if (!isDemo) userService.list().then(setUsers).catch(() => showToast('Users could not be loaded.', 'error')); }, [isDemo, showToast]);
   if (!hasPermission('users.manage')) return <div className="gl empty-state">User management is restricted to Admins.</div>;
 
   async function addUser(event) {
     event.preventDefault();
-    if (!name.trim() || !email.trim()) return showToast('Enter a username and email.', 'error');
+    if (!name.trim() || !email.trim() || (!isDemo && password.length < 12)) return showToast('Enter a username, email and a password of at least 12 characters.', 'error');
     try {
       const user = { username: name.trim(), email: email.trim(), role, active: true };
-      const saved = isDemo ? { ...user, id: `demo-${Date.now()}` } : await userService.create(user);
-      setUsers((rows) => [...rows, saved]); setName(''); setEmail(''); showToast(isDemo ? 'Sample user added in this session.' : 'User created.');
+      const request = { ...user, password };
+      const saved = isDemo ? { ...user, id: `demo-${Date.now()}` } : await userService.create(request);
+      setUsers((rows) => [...rows, saved]); setName(''); setEmail(''); setPassword(''); showToast(isDemo ? 'Sample user added in this session.' : 'User created.');
     } catch (e) { showToast(e.response?.data?.message || 'Could not create user.', 'error'); }
   }
   async function update(index, patch) {
@@ -31,7 +32,7 @@ export default function UserManagement() {
   }
 
   return <><div className="page-heading-row"><div><h1>User Management</h1><p className="mute page-subtitle">Manage organization users and assign application roles.</p></div></div>
-    <div className="gl card"><form className="toolbar" onSubmit={addUser}><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Username" aria-label="New username" /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" aria-label="New email" /><select className="filter-select" value={role} onChange={(e) => setRole(e.target.value)}><option>DEVELOPER</option><option>AUDITOR</option><option>ADMIN</option></select><button className="pri">Add user</button></form>
+    <div className="gl card"><form className="toolbar" onSubmit={addUser}><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Username" aria-label="New username" required maxLength={50} /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" aria-label="New email" required maxLength={120} />{!isDemo && <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Temporary password (12+ characters)" aria-label="Temporary password" autoComplete="new-password" required minLength={12} maxLength={256} />}<select className="filter-select" value={role} onChange={(e) => setRole(e.target.value)}><option>DEVELOPER</option><option>AUDITOR</option><option>ADMIN</option></select><button className="pri">Add user</button></form>
       <div className="table-scroll"><table className="admin-table"><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>{users.map((user, index) => <tr key={user.id || user.username}><td className="cell-primary">{user.username}</td><td>{user.email}</td><td><select className="filter-select" value={user.role} aria-label={`Role for ${user.username}`} onChange={(e) => update(index, { role: e.target.value })}><option>ADMIN</option><option>DEVELOPER</option><option>AUDITOR</option></select></td><td>{user.active ? 'Active' : 'Inactive'}</td><td><button onClick={() => update(index, { active: !user.active })}>{user.active ? 'Deactivate' : 'Reactivate'}</button></td></tr>)}</tbody></table></div>
     </div>
   </>;

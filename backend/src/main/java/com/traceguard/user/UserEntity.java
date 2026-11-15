@@ -68,4 +68,16 @@ public class UserEntity {
     public boolean isEnabled() {
         return enabled != null && enabled != 0;
     }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void updateRole(RoleEntity role) {
+        this.role = role;
+    }
+
+    public void updateEnabled(boolean enabled) {
+        this.enabled = (byte) (enabled ? 1 : 0);
+    }
 }

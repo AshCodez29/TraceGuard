@@ -10,6 +10,7 @@ import com.traceguard.auth.AuthenticationService;
 import com.traceguard.user.RoleEntity;
 import com.traceguard.user.UserEntity;
 import com.traceguard.user.UserRepository;
+import com.traceguard.user.UserManagementService;
 
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
@@ -35,6 +36,8 @@ class SecurityTestBeans {
                 new RoleEntity("DEVELOPER"), true));
         USERS.put("admin", new UserEntity("admin", "admin@example.test", passwordEncoder.encode("password"),
                 new RoleEntity("ADMIN"), true));
+        USERS.put("auditor", new UserEntity("auditor", "auditor@example.test", passwordEncoder.encode("password"),
+                new RoleEntity("AUDITOR"), true));
         return (UserRepository) Proxy.newProxyInstance(
                 UserRepository.class.getClassLoader(),
                 new Class<?>[]{UserRepository.class},
@@ -68,6 +71,12 @@ class SecurityTestBeans {
             PasswordEncoder passwordEncoder,
             JwtService jwtService) {
         return new AuthenticationService(userRepository, passwordEncoder, jwtService, "Northwind Labs");
+    }
+
+    @Bean
+    @Primary
+    UserManagementService testUserManagementService() {
+        return org.mockito.Mockito.mock(UserManagementService.class);
     }
 
     static String token(String username, String role) {

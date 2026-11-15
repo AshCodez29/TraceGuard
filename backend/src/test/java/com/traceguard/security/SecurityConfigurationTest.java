@@ -13,14 +13,21 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.traceguard.auth.AuthController;
+import com.traceguard.user.ManagedUserResponse;
+import com.traceguard.user.UserController;
+import com.traceguard.user.UserManagementService;
 
-@WebMvcTest(controllers = {SecurityTestController.class, AuthController.class})
+@WebMvcTest(controllers = {SecurityTestController.class, AuthController.class, UserController.class})
 @Import({SecurityConfiguration.class, SecurityTestBeans.class})
 class SecurityConfigurationTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private UserManagementService userManagementService;
 
     @Test
     void protectedEndpointRejectsMissingToken() throws Exception {
@@ -68,6 +75,35 @@ class SecurityConfigurationTest {
     void adminRoleReceivesAdminPermission() throws Exception {
         mockMvc.perform(get("/api/test/admin").header("Authorization", "Bearer " + SecurityTestBeans.token("admin", "ADMIN")))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void adminCanListUsers() throws Exception {
+        mockMvc.perform(get("/api/users").header("Authorization", "Bearer " + SecurityTestBeans.token("admin", "ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.users").isArray());
+    }
+
+    @Test
+    void adminCanCreateUser() throws Exception {
+        org.mockito.Mockito.when(userManagementService.create(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new ManagedUserResponse(5L, "jane", "jane@example.test", "DEVELOPER", true, true));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users")
+                        .header("Authorization", "Bearer " + SecurityTestBeans.token("admin", "ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"jane\",\"email\":\"jane@example.test\",\"password\":\"strong-password\",\"role\":\"DEVELOPER\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("jane"))
+                .andExpect(jsonPath("$.enabled").value(true));
+    }
+
+    @Test
+    void developerAndAuditorCannotListUsers() throws Exception {
+        mockMvc.perform(get("/api/users").header("Authorization", "Bearer " + SecurityTestBeans.token("priya", "DEVELOPER")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/users").header("Authorization", "Bearer " + SecurityTestBeans.token("auditor", "AUDITOR")))
+                .andExpect(status().isForbidden());
     }
 
     @Test
