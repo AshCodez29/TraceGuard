@@ -1,6 +1,6 @@
 # Normalization and design decisions: TraceGuard application database (traceguard_app)
 
-Scope: the 24 tables created by migrations V1 to V6 (plus the three views in V7 and the seed data in V8). This note explains why three representative tables are in Third Normal Form (3NF), and records the design decisions an examiner is likely to ask about.
+Scope: the 24 tables created by migrations V1 to V6 (plus the three views in V7 and the seed data in V8). Migration V9 (project management) later adds `projects` and `project_assignments`, which makes **26 tables**; those two are documented in `docs/v9_schema_audit_and_er.md`, and the ER diagram shows all 26. This note explains why three representative tables are in Third Normal Form (3NF), and records the design decisions an examiner is likely to ask about.
 
 ## Definitions used
 
@@ -76,7 +76,7 @@ One row is one suggested repair for one issue.
 | --- | --- |
 | Primary key | `proposal_id` |
 | Foreign keys | `issue_id` -> `issues`, `fix_type_id` -> `fix_types`, `approved_by` -> `users` |
-| Non-key attributes | `params_json`, `confidence`, `rationale`, `status`, `approved_by`, `approved_at`, `created_at` (Phase 2D migration V10 adds `dry_run_fingerprint` and `dry_run_at`) |
+| Non-key attributes | `params_json`, `confidence`, `rationale`, `status`, `approved_by`, `approved_at`, `created_at` (Phase 2D migration V11 adds `dry_run_fingerprint` and `dry_run_at`) |
 
 **Functional dependencies**
 
@@ -132,7 +132,7 @@ Design rule (Step 1B.1): JSON is allowed only for data whose shape belongs to so
 - A normalized alternative (one row per key column in a separate table) would need a generic name/value table that mixes types, which is no cleaner than one JSON value.
 - It is treated as one opaque value: it is read whole, compared whole, and never queried by its parts, so 1NF is not violated in practice.
 
-**Later phases.** Migration V10 (Step 2D.1) adds `fix_executions.details_json` for dry-run previews and verification numbers. This is a fifth JSON column, again holding data whose shape varies by fix type. When V10 is written, add it to this table.
+**Later phases.** Migration V11 (Step 2D.1 in the roadmap, renumbered because V9 is now the project migration) adds `fix_executions.details_json` for dry-run previews and verification numbers. This is a fifth JSON column, again holding data whose shape varies by fix type. When V11 is written, add it to this table.
 
 ---
 
@@ -144,13 +144,18 @@ The view is kept exactly as the roadmap defines it. Possible later fixes, not ap
 
 ---
 
-## Part E. Later-phase additions (not part of the current 24 tables)
+## Part E. Later-phase additions (not part of the current 26 tables)
 
-- **`scan_chain_results`** (migration V9, Step 2B.8) stores, for each scan and chain, how many rows reach each step and how many break there. It becomes the **25th table** when Phase 2B is built. It is not in the 24-table ER diagram.
-- Migration V10 (Step 2D.1) adds `dry_run_fingerprint` and `dry_run_at` to `fix_proposals` and `details_json` to `fix_executions`.
-- Migration V11 (Step 4.1) adds `TRACEGUARD_NO_AI` to `eval_runs.method`.
+Migration numbering after V9 became the project-management migration (the roadmap originally planned V9 to V11 for the items below):
 
-The ER diagram `docs/er_traceguard_app.png` shows the 24 tables of V1 to V6 and their 28 foreign keys. It should be regenerated after V9 to V11.
+| Migration | Content | Roadmap step | Roadmap name |
+| --- | --- | --- | --- |
+| V9 (written, not yet applied) | `projects`, `project_assignments`, `project_id` on `data_sources` and `scans`, view `v_scan_result` | n/a | n/a |
+| V10 | **`scan_chain_results`**, which becomes the **27th table** | Step 2B.8 | V9__chain_results.sql |
+| V11 | `dry_run_fingerprint` and `dry_run_at` on `fix_proposals`, `details_json` on `fix_executions` | Step 2D.1 | V10__fix_workflow_columns.sql |
+| V12 | `TRACEGUARD_NO_AI` added to `eval_runs.method` | Step 4.1 | V11 |
+
+`scan_chain_results` stores, for each scan and chain, how many rows reach each step and how many break there. The ER diagram `docs/er_traceguard_app.png` shows the 26 tables and 33 foreign keys that exist after V9 and should be regenerated after V10.
 
 ---
 
@@ -167,4 +172,4 @@ The ER diagram `docs/er_traceguard_app.png` shows the 24 tables of V1 to V6 and 
 | `fix_snapshots.pk_json` vs the three-use JSON rule | Retained; rule updated to cover it (Part C) |
 | `issues.total_rows` and `issues.severity` | Kept as snapshots (Part B) |
 | `v_issue_overview` timestamp tie | Documented, view unchanged (Part D) |
-| `scan_chain_results` | Later-phase table, not in the 24 (Part E) |
+| `scan_chain_results` | Later-phase table (migration V10), not in the current 26 (Part E) |
