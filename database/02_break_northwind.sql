@@ -26,12 +26,14 @@ SELECT CONCAT('FZY', rn), CONCAT(company_name, ' Inc.'), contact_name, city, cou
 FROM (SELECT c.*, ROW_NUMBER() OVER (ORDER BY customer_id DESC) rn
       FROM customers c WHERE customer_id NOT LIKE 'DUP%') t WHERE rn <= 4;
 
--- -- D11: 6 exact duplicate orders (get new order ids 831-836)
--- INSERT INTO orders (customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_country)
--- SELECT customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_country
--- FROM orders WHERE order_id <= 6;
+-- D11: copy the first six order business records; the clean dump's next IDs are 831-836.
+-- These header-only orders also contribute six records to D15 because no order lines are copied.
+INSERT INTO orders (customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_country)
+SELECT customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_country
+FROM orders WHERE order_id <= 6;
 
--- D12: 3 duplicated order lines
+-- D12: 3 planted duplicate order lines. D01 also creates 3 duplicate business-key groups
+-- on orders 1, 3, and 5, so the final database has 6 duplicate keys (16 affected rows).
 INSERT INTO order_details
 SELECT * FROM order_details WHERE order_id >= 400 ORDER BY order_id, product_id LIMIT 3;
 

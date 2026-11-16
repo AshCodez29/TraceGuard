@@ -9,9 +9,9 @@ D07,Null,products,category_id,7,NULL category_id values
 D08,Null,order_details,quantity,9,NULL quantity values
 D09,Exact duplicate,customers,customer_id,5,Five duplicate customer records with IDs DUP1-DUP5
 D10,Fuzzy duplicate,customers,company_name,4,Four similar customer names with an Inc. suffix (IDs FZY1-FZY4)
-D11,Exact duplicate,orders,order_id,6,Six duplicated orders with IDs 831-836
-D12,Exact duplicate,order_details,"order_id,product_id",3,Three duplicated order-detail combinations (planted; the D01 update may add extra duplicate groups on product_id 9999 - verify with SQL)
+D11,Exact duplicate,orders,order_id,6,"Six copies of orders 1-6 get IDs 831-836; no order-detail rows are copied, contributing six orders to D15"
+D12,Exact duplicate,order_details,"order_id,product_id",6,"Six duplicate business-key groups: 3 planted copied lines plus 3 groups induced by D01 on orders 1, 3, and 5; the scanner reports 16 affected rows across these groups"
 D13,Cycle,employees,reports_to,1,Circular management relationship: 4 -> 5 -> 6 -> 4
 D14,Missing FK,whole database,N/A,8,Eight undeclared foreign-key relationships: orders.customer_id -> customers.customer_id; orders.employee_id -> employees.employee_id; orders.ship_via -> shippers.shipper_id; order_details.order_id -> orders.order_id; order_details.product_id -> products.product_id; products.supplier_id -> suppliers.supplier_id; products.category_id -> categories.category_id; employees.reports_to -> employees.employee_id
-D15,Broken chain,orders,order_id,11,Orders without order-detail records (5 planted plus 6 copies from D11)
-D16,Broken chain,order_details,"order_id,product_id",68,Broken order_details -> orders -> customers/products traceability chain (ESTIMATED by replaying the seed script: 12 + 24 + 32; verify with the D16 SQL query)
+D15,Broken chain,orders,order_id,11,"11 orders lack order-detail rows: 5 after the D15 deletion plus 6 D11 copies; the clean dump has no baseline orders without details"
+D16,Broken chain,order_details,"order_id,product_id",68,"Verified from the clean dump: 12 D01 product-orphan lines + 32 lines under 8 D02 orphan-customer orders + 24 lines under 10 D06 null-customer orders; scanner reports component defects, not this aggregate"
