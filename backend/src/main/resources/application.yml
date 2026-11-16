@@ -2,7 +2,7 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/traceguard_scratch?createDatabaseIfNotExist=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://127.0.0.1:3308/traceguard_scratch?createDatabaseIfNotExist=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
     username: ${TG_DB_USER}
     password: ${TG_DB_PASSWORD}
   jpa:
