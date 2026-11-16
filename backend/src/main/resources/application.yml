@@ -1,6 +1,8 @@
 spring:
+  application:
+    name: backend
   datasource:
-    url: jdbc:mysql://localhost:3306/traceguard_app?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://localhost:3306/traceguard_scratch?createDatabaseIfNotExist=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
     username: ${TG_DB_USER}
     password: ${TG_DB_PASSWORD}
   jpa:
@@ -9,6 +11,7 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+    locations: classpath:db/migration
 traceguard:
   jwt:
     secret: ${JWT_SECRET}
