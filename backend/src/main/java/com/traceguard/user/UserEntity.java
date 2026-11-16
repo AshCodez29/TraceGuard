@@ -32,7 +32,7 @@ public class UserEntity {
     private RoleEntity role;
 
     @Column(name = "enabled", nullable = false)
-    private Byte enabled;
+    private boolean enabled;
 
     protected UserEntity() {
     }
@@ -42,7 +42,7 @@ public class UserEntity {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
-        this.enabled = (byte) (enabled ? 1 : 0);
+        this.enabled = enabled;
     }
 
     public Long getId() {
@@ -66,7 +66,7 @@ public class UserEntity {
     }
 
     public boolean isEnabled() {
-        return enabled != null && enabled != 0;
+        return enabled;
     }
 
     public void updateEmail(String email) {
@@ -78,6 +78,6 @@ public class UserEntity {
     }
 
     public void updateEnabled(boolean enabled) {
-        this.enabled = (byte) (enabled ? 1 : 0);
+        this.enabled = enabled;
     }
 }
