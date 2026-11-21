@@ -1,4 +1,4 @@
--- V7: read-only views used by the dashboard (aggregation stays in SQL)
+ -- V7: read-only views used by the dashboard (aggregation stays in SQL)
 
 CREATE VIEW v_scan_summary AS
 SELECT i.scan_id, it.code AS issue_type, i.severity,

@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
         "spring.datasource.username=sa",
         "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop",
+        "spring.jpa.defer-datasource-initialization=true",
+        "spring.sql.init.mode=always",
         "spring.flyway.enabled=false",
         "traceguard.jwt.secret=context-test-secret-with-at-least-32-bytes",
         "traceguard.datasource-encryption-key=context-test-encryption-key",
